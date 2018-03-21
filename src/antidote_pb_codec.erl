@@ -291,7 +291,7 @@ encode_read_objects(Objects, TxId) ->
 %%AWMAP = 9;
 %%RWSET = 10;
 
-encode_type(antidote_crdt_counter) -> 'COUNTER';
+encode_type(antidote_crdt_counter_pn) -> 'COUNTER';
 encode_type(antidote_crdt_counter_fat) -> 'FATCOUNTER';
 encode_type(antidote_crdt_set_aw) -> 'ORSET';
 encode_type(antidote_crdt_register_lww) -> 'LWWREG';
@@ -304,7 +304,7 @@ encode_type(antidote_crdt_flag_dw) -> 'FLAG_DW';
 encode_type(T) -> erlang:error({unknown_crdt_type, T}).
 
 
-decode_type('COUNTER') -> antidote_crdt_counter;
+decode_type('COUNTER') -> antidote_crdt_counter_pn;
 decode_type('FATCOUNTER') -> antidote_crdt_counter_fat;
 decode_type('ORSET') -> antidote_crdt_set_aw;
 decode_type('LWWREG') -> antidote_crdt_register_lww;
@@ -324,7 +324,7 @@ decode_type(T) -> erlang:error({unknown_crdt_type_protobuf, T}).
 
 encode_update_operation(_Type, {reset, {}}) ->
   #apbupdateoperation{resetop = #apbcrdtreset{}};
-encode_update_operation(antidote_crdt_counter, Op_Param) ->
+encode_update_operation(antidote_crdt_counter_pn, Op_Param) ->
   #apbupdateoperation{counterop = encode_counter_update(Op_Param)};
 encode_update_operation(antidote_crdt_counter_fat, Op_Param) ->
   #apbupdateoperation{counterop = encode_counter_update(Op_Param)};  
@@ -375,7 +375,7 @@ encode_read_object_resp(antidote_crdt_register_lww, Val) ->
     #apbreadobjectresp{reg=#apbgetregresp{value=Val}};
 encode_read_object_resp(antidote_crdt_register_mv, Vals) ->
     #apbreadobjectresp{mvreg = #apbgetmvregresp{values = Vals}};
-encode_read_object_resp(antidote_crdt_counter, Val) ->
+encode_read_object_resp(antidote_crdt_counter_pn, Val) ->
     #apbreadobjectresp{counter=#apbgetcounterresp{value=Val}};
 encode_read_object_resp(antidote_crdt_counter_fat, Val) ->
     #apbreadobjectresp{counter=#apbgetcounterresp{value=Val}};    
@@ -392,7 +392,7 @@ encode_read_object_resp(antidote_crdt_flag_ew, Val) ->
 encode_read_object_resp(antidote_crdt_flag_dw, Val) ->
     #apbreadobjectresp{flag = #apbgetflagresp{value = Val}}.
 
-% TODO why does this use counter instead of antidote_crdt_counter etc.?
+% TODO why does this use counter instead of antidote_crdt_counter_pn etc.?
 decode_read_object_resp(#apbreadobjectresp{counter = #apbgetcounterresp{value = Val}}) ->
     {counter, Val};
 decode_read_object_resp(#apbreadobjectresp{set = #apbgetsetresp{value = Val}}) ->
@@ -566,7 +566,7 @@ start_transaction_test() ->
                                           Msg#apbstarttransaction.properties)).
 
 read_transaction_test() ->
-    Objects = [{<<"key1">>, antidote_crdt_counter, <<"bucket1">>},
+    Objects = [{<<"key1">>, antidote_crdt_counter_pn, <<"bucket1">>},
                {<<"key2">>, antidote_crdt_set_aw, <<"bucket2">>}],
     TxId = term_to_binary({12}),
          %% Dummy value, structure of TxId is opaque to client
@@ -598,10 +598,10 @@ read_transaction_test() ->
                  antidote_pb_codec:decode_response(ResMsg)).
 
 update_types_test() ->
-    Updates = [ {{<<"1">>, antidote_crdt_counter, <<"2">>}, increment , 1},
-                {{<<"2">>, antidote_crdt_counter, <<"2">>}, increment , 1},
+    Updates = [ {{<<"1">>, antidote_crdt_counter_pn, <<"2">>}, increment , 1},
+                {{<<"2">>, antidote_crdt_counter_pn, <<"2">>}, increment , 1},
                 {{<<"a">>, antidote_crdt_set_aw, <<"2">>}, add , <<"3">>},
-                {{<<"b">>, antidote_crdt_counter, <<"2">>}, increment , 2},
+                {{<<"b">>, antidote_crdt_counter_pn, <<"2">>}, increment , 2},
                 {{<<"c">>, antidote_crdt_set_aw, <<"2">>}, add, <<"4">>},
                 {{<<"a">>, antidote_crdt_set_aw, <<"2">>}, add_all , [<<"5">>,<<"6">>]}
               ],
@@ -655,8 +655,8 @@ crdt_encode_decode_test() ->
   %% encoding the following operations and decoding them again, should give the same result
 
   % Counter
-  ?TestCrdtOperationCodec(antidote_crdt_counter, increment, 1),
-  ?TestCrdtResponseCodec(antidote_crdt_counter, counter, 42),
+  ?TestCrdtOperationCodec(antidote_crdt_counter_pn, increment, 1),
+  ?TestCrdtResponseCodec(antidote_crdt_counter_pn, counter, 42),
 
   % lww-register
   ?TestCrdtOperationCodec(antidote_crdt_register_lww, assign, <<"hello">>),
