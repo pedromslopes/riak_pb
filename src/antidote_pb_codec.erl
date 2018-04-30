@@ -562,7 +562,7 @@ encode_get_connection_descriptor() ->
   #apbgetconnectiondescriptor{}.
 
 encode_connect_to_dcs(Descriptors) ->
-  #apbconnectodcs{descriptors = Descriptors}.
+  #apbconnecttodcs{descriptors = Descriptors}.
 
 
 
