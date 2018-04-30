@@ -231,3 +231,23 @@ message ApbStaticReadObjectsResp {
     required ApbReadObjectsResp objects = 1;
     required ApbCommitResp committime = 2;
 }
+
+//------------ Cluster Management API ---------
+
+message ApbCreateDC{
+  repeated string nodes = 1;
+}
+
+message ApbGetConnectionDescriptor{
+}
+
+message ApbGetConnectionDescriptorResponse{
+  required bool success = 1;
+  //structure of descriptor is internal to antidote.
+  optional bytes descriptor = 2;
+  optional uint32 errorcode = 3;
+}
+
+message ApbConnectToDcs{
+    repeated bytes descriptors = 1;
+}
