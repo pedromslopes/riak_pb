@@ -70,6 +70,10 @@
 126,ApbReadObjectsResp,antidote
 127,ApbCommitResp,antidote
 128,ApbStaticReadObjectsResp,antidote
+129,ApbCreateDC,antidote
+130,ApbConnectToDcs,antidote
+131,ApbGetConnectionDescriptor,antidote
+132,ApbGetConnectionDescriptorResponse,antidote
 253,RpbAuthReq,riak
 254,RpbAuthResp,riak
 255,RpbStartTls,riak
