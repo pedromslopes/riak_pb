@@ -240,6 +240,7 @@ message ApbCreateDC{
   repeated string nodes = 1;
 }
 
+// Get a connection descriptor of the DC to be given to other DCs.
 message ApbGetConnectionDescriptor{
 }
 
@@ -251,6 +252,7 @@ message ApbGetConnectionDescriptorResponse{
 }
 
 // Connect DC with each other to start replication.
+// This message must be send to all DCs.
 message ApbConnectToDcs{
   // descriptors is a list of connection information of all DCs obtained from ApbGetConnectionDescriptorResponse.descriptor
     repeated bytes descriptors = 1;
