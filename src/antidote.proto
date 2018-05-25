@@ -234,7 +234,9 @@ message ApbStaticReadObjectsResp {
 
 //------------ Cluster Management API ---------
 
+// Create a DC with multiple nodes
 message ApbCreateDC{
+  // name of antidote nodes of the form 'antidote@hostname' or 'antidote@ip'
   repeated string nodes = 1;
 }
 
@@ -248,6 +250,8 @@ message ApbGetConnectionDescriptorResponse{
   optional uint32 errorcode = 3;
 }
 
+// Connect DC with each other to start replication.
 message ApbConnectToDcs{
+  // descriptors is a list of connection information of all DCs obtained from ApbGetConnectionDescriptorResponse.descriptor
     repeated bytes descriptors = 1;
 }
