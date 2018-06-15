@@ -1,5 +1,6 @@
 -module(encoding_test).
--compile([export_all]).
+%-compile([export_all]).
+-export([msg_code_encode_decode/1]).
 -include_lib("eunit/include/eunit.hrl").
 -include("riak_pb_kv_codec.hrl").
 

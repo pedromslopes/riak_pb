@@ -138,13 +138,53 @@ encode_abort_transaction(TxId) ->
   #apbaborttransaction{transaction_descriptor = TxId}.
 
 
-encode_txn_properties(_Props) ->
-  %%TODO: Add more property parameters
-  #apbtxnproperties{}.
+encode_txn_properties(Props) ->
+  % 0 = not_specified | 1 = use_default | 2 = certify | 3 = dont_certify
+  Certify_Value = case orddict:find(certify,Props) of
+        error -> 0;
+        {ok, use_default} -> 1;
+        {ok, certify} -> 2;
+        {ok, dont_certify} -> 3;
+        _ -> 0
+  end,
+  Update_Clock_Value = case orddict:find(update_clock,Props) of
+        error -> 0;
+        {ok, true} -> 1;
+        {ok, false} -> 2;
+        _ -> 0
+  end,
+  Locks_Value = case orddict:find(locks,Props) of
+        error -> [];
+        {ok, Value2} -> [term_to_binary(A)||A<-Value2];
+        _ -> []
+  end,
+  #apbtxnproperties{certify = Certify_Value,
+    locks = Locks_Value,
+    update_clock = Update_Clock_Value}.
 
-decode_txn_properties(_Properties) ->
-  {}.
-
+decode_txn_properties(Properties) ->
+  #apbtxnproperties{certify = Certify_Value,
+    locks = Locks_Value,
+    update_clock = Update_Clock_Value} = Properties,
+  Properties_List_0 = orddict:new(),
+  % 0 = not_specified | 1 = use_default | 2 = certify | 3 = dont_certify
+  Properties_List_1 = case Certify_Value of
+      0 -> Properties_List_0;
+      1 -> orddict:store(certify,use_default,Properties_List_0);
+      2 -> orddict:store(certify,certify,Properties_List_0);
+      3 -> orddict:store(certify,dont_certify,Properties_List_0);
+      _ -> Properties_List_0
+  end,
+  Properties_List_2 = case Locks_Value of
+      [] -> Properties_List_1;
+      Lock_List -> orddict:store(locks,[binary_to_term(Lock)||Lock<-Lock_List],Properties_List_1)
+  end,
+  _Properties_List_3 = case Update_Clock_Value of
+      0 -> Properties_List_2;
+      1 -> orddict:store(update_clock,true,Properties_List_2);
+      2 -> orddict:store(update_clock,false,Properties_List_2);
+      _ -> Properties_List_2
+  end.
 
 
 %%%%%%%%%%%%%%%%%%%%%
@@ -554,7 +594,36 @@ decode_map_entry(#apbmapentry{key = KeyEnc, value = ValueEnc}) ->
 %% Tests encode and decode
 start_transaction_test() ->
     Clock = term_to_binary(ignore),
-    Properties = {},
+    Properties = [],
+    EncRecord = antidote_pb_codec:encode(start_transaction,
+                                         {Clock, Properties}),
+    ?assertMatch(true, is_record(EncRecord, apbstarttransaction)),
+    [MsgCode, MsgData] = riak_pb_codec:encode(EncRecord),
+    Msg = riak_pb_codec:decode(MsgCode, list_to_binary(MsgData)),
+    ?assertMatch(true, is_record(Msg,apbstarttransaction)),
+    ?assertMatch(ignore, binary_to_term(Msg#apbstarttransaction.timestamp)),
+    ?assertMatch(Properties,
+                 antidote_pb_codec:decode(txn_properties,
+                                          Msg#apbstarttransaction.properties)).
+
+%% Tests encode and decode
+start_transaction_properties_1_test() ->
+    Clock = term_to_binary(ignore),
+    Properties = [{certify,dont_certify},{locks,[lock1,lock2]},{update_clock,true}],
+    EncRecord = antidote_pb_codec:encode(start_transaction,
+                                         {Clock, Properties}),
+    [MsgCode, MsgData] = riak_pb_codec:encode(EncRecord),
+    Msg = riak_pb_codec:decode(MsgCode, list_to_binary(MsgData)),
+    ?assertMatch(true, is_record(Msg,apbstarttransaction)),
+    ?assertMatch(ignore, binary_to_term(Msg#apbstarttransaction.timestamp)),
+    ?assertMatch(Properties,
+                 antidote_pb_codec:decode(txn_properties,
+                                          Msg#apbstarttransaction.properties)),
+    ?assertMatch({ok,[lock1,lock2]},orddict:find(locks,antidote_pb_codec:decode(txn_properties,
+                                          Msg#apbstarttransaction.properties))).
+start_transaction_properties_2_test() ->
+    Clock = term_to_binary(ignore),
+    Properties = [{locks,[lock1,lock2]},{update_clock,true}],
     EncRecord = antidote_pb_codec:encode(start_transaction,
                                          {Clock, Properties}),
     [MsgCode, MsgData] = riak_pb_codec:encode(EncRecord),
@@ -564,6 +633,32 @@ start_transaction_test() ->
     ?assertMatch(Properties,
                  antidote_pb_codec:decode(txn_properties,
                                           Msg#apbstarttransaction.properties)).
+start_transaction_properties_3_test() ->
+    Clock = term_to_binary(ignore),
+    Properties = [{certify,dont_certify},{update_clock,true}],
+    EncRecord = antidote_pb_codec:encode(start_transaction,
+                                         {Clock, Properties}),
+    [MsgCode, MsgData] = riak_pb_codec:encode(EncRecord),
+    Msg = riak_pb_codec:decode(MsgCode, list_to_binary(MsgData)),
+    ?assertMatch(true, is_record(Msg,apbstarttransaction)),
+    ?assertMatch(ignore, binary_to_term(Msg#apbstarttransaction.timestamp)),
+    ?assertMatch(Properties,
+                 antidote_pb_codec:decode(txn_properties,
+                                          Msg#apbstarttransaction.properties)).
+start_transaction_properties_4_test() ->
+    Clock = term_to_binary(ignore),
+    Properties = [{certify,dont_certify},{locks,[lock1,lock2]}],
+    EncRecord = antidote_pb_codec:encode(start_transaction,
+                                         {Clock, Properties}),
+    [MsgCode, MsgData] = riak_pb_codec:encode(EncRecord),
+    Msg = riak_pb_codec:decode(MsgCode, list_to_binary(MsgData)),
+    ?assertMatch(true, is_record(Msg,apbstarttransaction)),
+    ?assertMatch(ignore, binary_to_term(Msg#apbstarttransaction.timestamp)),
+    ?assertMatch(Properties,
+                 antidote_pb_codec:decode(txn_properties,
+                                          Msg#apbstarttransaction.properties)).
+
+
 
 read_transaction_test() ->
     Objects = [{<<"key1">>, antidote_crdt_counter_pn, <<"bucket1">>},

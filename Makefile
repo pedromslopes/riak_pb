@@ -1,8 +1,8 @@
 .PHONY: deps
 
 all: deps compile_all
-
-deps: erl_deps
+# used to be erl_deps
+deps: ${REBAR} deps
 
 compile_all: erl_compile python_compile python3_compile java_compile c_compile
 
@@ -16,7 +16,7 @@ release: python_release python3_release java_release c_release
 # Erlang-specific build steps
 DIALYZER_APPS = kernel stdlib erts crypto compiler hipe syntax_tools
 include tools.mk
-
+#used to be @${REBAR} get-deps
 erl_deps:
 	@${REBAR} get-deps
 
