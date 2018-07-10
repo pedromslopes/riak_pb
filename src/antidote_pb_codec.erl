@@ -36,7 +36,7 @@
 
 -define(assert_binary(X), case is_binary(X) of true -> ok; false -> throw({not_binary, X}) end).
 -define(assert_all_binary(Xs), [?assert_binary(X) || X <- Xs]).
--define(assert_all_binary2(Xss), lists:foldl(fun(Elem,AccIn) -> case Elem of ok -> AccIn; _ -> false end,true,?assert_all_binary(Xss))).
+-define(assert_all_binary2(Xss), lists:foldl(fun(Elem,AccIn) -> case Elem of ok -> AccIn; _ -> false end end,true,?assert_all_binary(Xss))).
 
 % general encode function
 encode(start_transaction, {Clock, Properties}) ->
@@ -211,15 +211,15 @@ decode_txn_properties(Properties) ->
   Properties_List_2 = case Locks_Value of
       [] -> Properties_List_1;
       % Lock_List -> orddict:store(locks,[binary_to_term(Lock)||Lock<-Lock_List],Properties_List_1)
-      Lock_List -> orddict:store(locks,Locks_Value, Properties_List_1)
+      _Lock_List -> orddict:store(locks,Locks_Value, Properties_List_1)
   end,
   Properties_List_3 = case Shared_Locks_Value of
       [] -> Properties_List_2;
-      Shared_Lock_List -> orddict:store(shared_locks,Shared_Locks_Value,Properties_List_2)
+      _Shared_Lock_List -> orddict:store(shared_locks,Shared_Locks_Value,Properties_List_2)
   end,
   Properties_List_4 = case Exclusive_Locks_Value of
       [] -> Properties_List_3;
-      Exclusive_Lock_List -> orddict:store(exclusive_locks,Exclusive_Locks_Value,Properties_List_3)
+      _Exclusive_Lock_List -> orddict:store(exclusive_locks,Exclusive_Locks_Value,Properties_List_3)
   end,
   _Properties_List_5 = case Update_Clock_Value of
       0 -> Properties_List_4;
