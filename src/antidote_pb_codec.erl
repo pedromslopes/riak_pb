@@ -161,7 +161,7 @@ encode_txn_properties(Props) ->
                 true ->
                     Value1;
                 false ->
-                    [term_to_binary(A)||A<-Value1];
+                    [term_to_binary(A)||A<-Value1]
             end;
         _ -> []
   end,
@@ -172,7 +172,7 @@ encode_txn_properties(Props) ->
                 true ->
                     Value2;
                 false ->
-                    [term_to_binary(A)||A<-Value2];
+                    [term_to_binary(A)||A<-Value2]
             end;
         _ -> []
   end,
@@ -183,7 +183,7 @@ encode_txn_properties(Props) ->
                 true ->
                     Value3;
                 false ->
-                    [term_to_binary(A)||A<-Value3];
+                    [term_to_binary(A)||A<-Value3]
             end;
         _ -> []
   end,
