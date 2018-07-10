@@ -215,11 +215,11 @@ decode_txn_properties(Properties) ->
   end,
   Properties_List_3 = case Shared_Locks_Value of
       [] -> Properties_List_2;
-      Shared_Lock_List -> orddict:store(locks,Shared_Locks_Value,Properties_List_2)
+      Shared_Lock_List -> orddict:store(shared_locks,Shared_Locks_Value,Properties_List_2)
   end,
   Properties_List_4 = case Exclusive_Locks_Value of
       [] -> Properties_List_3;
-      Exclusive_Lock_List -> orddict:store(locks,Exclusive_Locks_Value,Properties_List_3)
+      Exclusive_Lock_List -> orddict:store(exclusive_locks,Exclusive_Locks_Value,Properties_List_3)
   end,
   _Properties_List_5 = case Update_Clock_Value of
       0 -> Properties_List_4;
