@@ -208,8 +208,11 @@
 -ifndef(APBTXNPROPERTIES_PB_H).
 -define(APBTXNPROPERTIES_PB_H, true).
 -record(apbtxnproperties, {
-    read_write,
-    red_blue
+    certify,
+    locks = [],
+    update_clock,
+    shared_locks = [],
+    exclusive_locks = []
 }).
 -endif.
 

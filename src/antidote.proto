@@ -195,9 +195,26 @@ message ApbOperationResp {
 
 // Properties parameters of a transaction
 message ApbTxnProperties {
-    optional uint32 read_write = 1 ; //default = 0 = read_write, 1 = read_only, 2 = write_only
-    optional uint32 red_blue = 2 ; // default = 0 = blue, 1 = red
+    optional int32 certify = 1;
+    repeated bytes locks = 2;
+    repeated bytes shared_locks = 4;
+    repeated bytes exclusive_locks = 5;
+    optional int32 update_clock = 3;
 }
+// Possible Properties
+/*
+// 0 = not_specified | 1 = use_default | 2 = certify | 3 = dont_certify
+message Certify {
+    required int32 certify =1;
+}
+message Locks {
+    repeated bytes key = 1;
+}
+// 0 = not_specified | 1 = true | 2 = false
+message Update_Clock {
+    required int32 clock = 1;
+}
+*/
 
 // Object (Key) representation
 message ApbBoundObject {
