@@ -12,15 +12,18 @@ enum CRDT_type {
     RWSET = 10;
     RRMAP = 11;
     FATCOUNTER = 12;
-    FLAG_EW = 13;
-    FLAG_DW = 14;
+    BCOUNTER = 13;
+    FLAG_EW = 14;
+    FLAG_DW = 15;
+    INDEX_P = 16;
+    INDEX = 17;
 }
 
 
 //------------------
 // Counter
 
-// Counter increment requenst
+// Counter increment request
 message ApbCounterUpdate {
     // inc indicates the value to be incremented. To decrement, use a negative value. If no value is given, it will be considered as an increment by 1
     optional sint64 inc = 1;
@@ -31,6 +34,22 @@ message ApbGetCounterResp {
     required sint32 value = 1;
 }
 
+// Bounded
+message ApbBCounterUpdate {
+    optional sint64 inc = 1;
+    required bytes actor = 2;
+    optional bytes transferDest = 3;
+}
+
+message ApbGetBCounterResp {
+    repeated ApbBCounterEntry incs = 1;
+    repeated ApbBCounterEntry decs = 2;
+}
+
+message ApbBCounterEntry {
+    required bytes actor = 1;
+    required sint32 value = 2;
+}
 
 //------------------
 // Set
@@ -114,6 +133,51 @@ message ApbGetFlagResp {
     required bool value = 1;
 }
 
+//------------------
+// Index
+message ApbIndexPUpdate {
+    repeated ApbIndexPNestedUpdate updates = 1;
+    repeated ApbIndexKey removes = 2;
+}
+
+message ApbIndexPNestedUpdate {
+    required ApbIndexKey key = 1;
+    required ApbRegUpdate update = 2;
+}
+
+message ApbIndexKey {
+    required bytes key = 1;
+}
+
+message ApbIndexSUpdate {
+    repeated ApbIndexSNestedUpdate updates = 1;
+    repeated ApbIndexKey removes = 2;
+}
+
+message ApbIndexSNestedUpdate {
+    required ApbIndexKey key = 1;
+    repeated ApbIndexSTupleOperation update = 2;
+}
+
+message ApbIndexSTupleOperation {
+    enum Field_name {
+        BOUND_OBJ = 1;
+        INDEX_VAL = 2;
+    }
+    required Field_name fieldName = 1;
+    required CRDT_type fieldType = 2;
+    required ApbUpdateOperation op = 3;
+}
+
+message ApbGetIndexResp {
+    repeated ApbIndexEntry entries = 1;
+}
+
+message ApbIndexEntry {
+    required ApbIndexKey key = 1;
+    repeated ApbBoundObject boundObjs = 2;
+}
+
 
 
 // General reset operation
@@ -126,7 +190,6 @@ message ApbOperationResp {
     required bool success = 1;
     optional uint32 errorcode = 2;
 }
-
 
 //--------------------------------------------------------------
 
@@ -149,6 +212,19 @@ message ApbReadObjects {
     required bytes transaction_descriptor = 2;
 }
 
+// Query objects
+message ApbQueryObjects {
+    required bytes filter = 1;
+    required bytes transaction_descriptor = 2;
+}
+
+
+message ApbQueryObjectsResp {
+    required bool success = 1;
+    repeated bytes result = 2;
+    optional uint32 errorcode = 3;
+}
+
 // An Object to be updated with specified operation
 message ApbUpdateOp {
     required ApbBoundObject boundobject = 1;
@@ -157,11 +233,14 @@ message ApbUpdateOp {
 
 message ApbUpdateOperation { // TODO use this above
     optional ApbCounterUpdate counterop = 1;
-    optional ApbSetUpdate setop = 2;
-    optional ApbRegUpdate regop = 3;
+    optional ApbBCounterUpdate bcounterop = 2;
+    optional ApbSetUpdate setop = 3;
+    optional ApbRegUpdate regop = 4;
     optional ApbMapUpdate mapop = 5;
     optional ApbCrdtReset resetop = 6;
     optional ApbFlagUpdate flagop = 7;
+    optional ApbIndexPUpdate indexpop = 8;
+    optional ApbIndexSUpdate indexsop = 9;
 }
 
 // Objects to be updated
@@ -208,11 +287,13 @@ message ApbStartTransactionResp {
 message ApbReadObjectResp {
     // one of the following:
     optional ApbGetCounterResp counter = 1;
-    optional ApbGetSetResp set = 2;
-    optional ApbGetRegResp reg = 3;
-    optional ApbGetMVRegResp mvreg = 4;
+    optional ApbGetBCounterResp counter_b = 2;
+    optional ApbGetSetResp set = 3;
+    optional ApbGetRegResp reg = 4;
+    optional ApbGetMVRegResp mvreg = 5;
     optional ApbGetMapResp map = 6;
     optional ApbGetFlagResp flag = 7;
+    optional ApbGetIndexResp index = 8;
 }
 message ApbReadObjectsResp {
     required bool success = 1;

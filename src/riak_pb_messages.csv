@@ -70,6 +70,16 @@
 126,ApbReadObjectsResp,antidote
 127,ApbCommitResp,antidote
 128,ApbStaticReadObjectsResp,antidote
+129,ApbQueryObjects,antidote
+130,ApbQueryObjectsResp,antidote
+131,ApbGetMVRegResp,antidote
+132,ApbMapUpdate,antidote
+133,ApbGetMapResp,antidote
+134,ApbIndexPUpdate,antidote
+135,ApbIndexSUpdate,antidote
+136,ApbGetIndexResp,antidote
+137,ApbBCounterUpdate,antidote
+138,ApbGetBCounterResp,antidote
 253,RpbAuthReq,riak
 254,RpbAuthResp,riak
 255,RpbStartTls,riak

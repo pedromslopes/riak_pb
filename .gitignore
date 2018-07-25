@@ -12,6 +12,8 @@ src/riak_pb_messages.erl
 dialyzer_unhandled_warnings
 dialyzer_warnings
 .rebar/*
+.idea/
+*.iml
 
 # Python
 riak_pb.egg-info
