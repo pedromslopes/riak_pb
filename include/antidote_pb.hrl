@@ -245,7 +245,7 @@
 -define(APBQUERYOBJECTSRESP_PB_H, true).
 -record(apbqueryobjectsresp, {
     success = erlang:error({required, success}),
-    result = [],
+    result = erlang:error({required, result}),
     errorcode
 }).
 -endif.

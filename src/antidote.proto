@@ -238,7 +238,7 @@ message ApbQueryObjects {
 
 message ApbQueryObjectsResp {
     required bool success = 1;
-    repeated bytes result = 2;
+    required bytes result = 2;
     optional uint32 errorcode = 3;
 }
 
