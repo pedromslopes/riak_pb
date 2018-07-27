@@ -146,7 +146,9 @@
 -ifndef(APBINDEXKEY_PB_H).
 -define(APBINDEXKEY_PB_H, true).
 -record(apbindexkey, {
-    key = erlang:error({required, key})
+    bytekey,
+    intkey,
+    boolkey
 }).
 -endif.
 

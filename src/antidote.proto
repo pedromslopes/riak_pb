@@ -146,7 +146,9 @@ message ApbIndexPNestedUpdate {
 }
 
 message ApbIndexKey {
-    required bytes key = 1;
+    optional bytes bytekey = 1;
+    optional sint32 intkey = 2;
+    optional bool boolkey = 3;
 }
 
 message ApbIndexSUpdate {

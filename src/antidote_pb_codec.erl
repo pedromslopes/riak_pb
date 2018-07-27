@@ -697,11 +697,32 @@ decode_map_entry(#apbmapentry{key = KeyEnc, value = ValueEnc}) ->
 
 
 % index updates
+encode_index_key(Key) when is_binary(Key) ->
+  #apbindexkey{bytekey = Key};
+encode_index_key(Key) when is_integer(Key) ->
+  #apbindexkey{intkey = Key};
+encode_index_key(Key) when is_boolean(Key) ->
+  #apbindexkey{boolkey = Key};
 encode_index_key(Key) ->
-  ?assert_binary(Key),
-  #apbindexkey{key = Key}.
+  #apbindexkey{bytekey = term_to_binary(Key)}.
 
-decode_index_key(#apbindexkey{key = Key}) ->
+decode_index_key(#apbindexkey{
+  bytekey = Key,
+  intkey = undefined,
+  boolkey = undefined
+}) ->
+  Key;
+decode_index_key(#apbindexkey{
+  bytekey = undefined,
+  intkey = Key,
+  boolkey = undefined
+}) ->
+  Key;
+decode_index_key(#apbindexkey{
+  bytekey = undefined,
+  intkey = undefined,
+  boolkey = Key
+}) ->
   Key.
 
 %% index_p
